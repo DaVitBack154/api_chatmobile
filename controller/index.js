@@ -1,22 +1,22 @@
-const Modelchat = require('../model/model');
+const Modelchatuser = require('../model/model');
+const { saveMessageToDb } = require('./saveMsgToDb');
 
-// ฟังก์ชันสำหรับดึงข้อความทั้งหมด
-module.exports.getAllMessages = async () => {
+module.exports.getAllMessages = async (req, res) => {
   try {
-    const messages = await Modelchat.find();
+    const messages = await Modelchatuser.find();
     res.json(messages);
   } catch (error) {
     res.status(500).send('Error retrieving messages');
   }
 };
 
-module.exports.saveMessage = async () => {
+module.exports.saveMessage = async (req, res) => {
   try {
-    const newMessage = new Modelchat(data);
-    await newMessage.save();
-    console.log('Message saved successfully:', newMessage);
+    const data = req.body;
+    const result = await saveMessageToDb(data);
+    res.status(201).json(result);
   } catch (error) {
-    console.error('Error saving message:', error);
-    throw error; // สามารถเพิ่ม throw เพื่อระบุปัญหาได้
+    console.error(error);
+    res.status(500).json({ message: 'Error saving message', error });
   }
 };

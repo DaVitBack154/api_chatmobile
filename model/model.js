@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const CreateChatappSchema = mongoose.Schema(
+
+const CreateChatuserSchema = mongoose.Schema(
   {
     username: String,
     message: String,
@@ -10,4 +11,4 @@ const CreateChatappSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('create_chat', CreateChatappSchema);
+module.exports = mongoose.model('create_chatuser', CreateChatuserSchema);

@@ -1,19 +1,20 @@
+// app.js
+
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const { readdirSync } = require('fs');
 const morgan = require('morgan');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const { connectDB } = require('./config/config');
-const Message = require('./model/model');
-const { saveMessage } = require('./controller/index');
+const { saveMessageToDb } = require('./controller/saveMsgToDb');
+const Modelchatuser = require('./model/model');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: '*', // หรือระบุโดเมนเฉพาะ เช่น 'http://localhost:3700'
+    origin: '*',
     methods: ['GET', 'POST'],
   },
 });
@@ -22,33 +23,28 @@ const io = socketIo(server, {
 connectDB();
 
 // Middleware
-app.use(
-  cors({
-    origin: '*',
-  })
-);
-app.use(bodyParser.json());
+app.use(cors());
+app.use(express.json()); // Middleware สำหรับ parse JSON ที่ส่งเข้ามาใน body
 app.use(morgan('dev'));
 
 // Socket.io connection
 io.on('connection', (socket) => {
   console.log('New user connected');
 
-  // Send all messages to the user
+  // ส่งข้อมูลทั้งหมดไปยังผู้ใช้ที่เข้าร่วม
   socket.on('requestMessages', async () => {
     try {
-      const messages = await Message.find();
+      const messages = await Modelchatuser.find();
       socket.emit('initialMessages', messages);
     } catch (error) {
       console.error('Error getting messages:', error);
     }
   });
 
-  // Handle incoming messages
   socket.on('sendMessage', async (data) => {
     try {
-      await saveMessage(data);
-      io.emit('receiveMessage', data); // ส่งข้อความกลับไปยังทุกๆ client
+      const savedMessage = await saveMessageToDb(data); // เรียกใช้ saveMessage ใน controller
+      io.emit('receiveMessage', savedMessage); // ส่งข้อความที่บันทึกแล้วกลับไปยังทุกๆ client ผ่าน WebSocket
     } catch (error) {
       console.error('Error saving message via socket:', error);
     }
@@ -60,8 +56,8 @@ io.on('connection', (socket) => {
 });
 
 // Route
-readdirSync('./routes').map((e) => {
-  return app.use(require('./routes/' + e));
+readdirSync('./routes').map((file) => {
+  app.use(require(`./routes/${file}`));
 });
 
 const PORT = process.env.PORT || 4000;
