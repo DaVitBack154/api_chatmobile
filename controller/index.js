@@ -20,3 +20,21 @@ module.exports.saveMessage = async (req, res) => {
     res.status(500).json({ message: 'Error saving message', error });
   }
 };
+
+module.exports.UploadImage = async (files, messageId, io) => {
+  try {
+    const imagePaths = files.map((file) => file.path);
+
+    // Update message in MongoDB with image paths
+    const message = await Modelchatuser.findById(messageId);
+    if (message) {
+      message.image.push(...imagePaths);
+      await message.save();
+
+      // Emit the updated message to all clients
+      io.emit('updateMessage', JSON.stringify(message));
+    }
+  } catch (error) {
+    console.error('Error updating message with images:', error);
+  }
+};

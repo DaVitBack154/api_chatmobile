@@ -8,6 +8,8 @@ const CreateChatuserSchema = mongoose.Schema(
     type: String,
     status_read: String,
     status_connect: String,
+    id_card: String,
+    role: String,
     image: {
       type: [String],
     },
