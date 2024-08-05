@@ -4,11 +4,20 @@ const {
   getAllMessages,
   saveMessage,
   UploadImage,
+  createUser,
+  getUser,
+  getConversations,
 } = require('../controller/index');
 const upload = require('../middleware/image');
 
 //chat
 router.get('/getmessages', getAllMessages);
+
+router.post('/create', createUser);
+
+router.get('/getUser', getUser);
+
+router.get('/getConversations', getConversations);
 
 // Endpoint POST สำหรับการส่งข้อความ
 router.post('/postmessages', saveMessage);

@@ -1,5 +1,7 @@
 const Modelchatuser = require('../model/model');
 const { saveMessageToDb } = require('./saveMsgToDb');
+const UserModel = require('../model/user.model');
+const ConversationsModel = require('../model/conversations.model');
 const fs = require('fs');
 const path = require('path');
 
@@ -20,6 +22,105 @@ module.exports.saveMessage = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error saving message', error });
+  }
+};
+
+module.exports.createUser = async (req, res) => {
+  const { UserID, Name, Role } = req.body;
+
+  if (!UserID || UserID === '')
+    return res
+      .status(400)
+      .json({ status: false, code: 400, message: 'UserID is required' });
+
+  if (!Name || Name === '')
+    return res
+      .status(400)
+      .json({ status: false, code: 400, message: 'Name is required' });
+
+  if (!Role || Role === '')
+    return res
+      .status(400)
+      .json({ status: false, code: 400, message: 'Role is required' });
+
+  const user = new UserModel({ _id: UserID, name: Name, role: Role });
+
+  try {
+    const getUser = await UserModel.findOne({
+      _id: UserID,
+    });
+
+    if (getUser) {
+      console.log('duplicate');
+      return res.status(500).json({
+        status: false,
+        code: 500,
+        message: 'duplicate user ' + getUser._id,
+      });
+    }
+
+    const result = await user.save();
+
+    if (!result)
+      return res
+        .status(500)
+        .json({ status: false, code: 500, message: 'Internal server error' });
+
+    return res.status(200).json({
+      status: true,
+      code: 200,
+      message: 'User added successfully',
+      data: result,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      status: false,
+      code: 500,
+      message: err?.message || 'Internal server error',
+    });
+  }
+};
+
+module.exports.getUser = async (req, res) => {
+  try {
+    const result = await UserModel.find({
+      role: 'user',
+    });
+
+    return res.status(200).json({
+      status: true,
+      code: 200,
+      message: 'User added successfully',
+      data: result,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      status: false,
+      code: 500,
+      message: err?.message || 'Internal server error',
+    });
+  }
+};
+
+module.exports.getConversations = async (req, res) => {
+  try {
+    const result = await ConversationsModel.find();
+
+    return res.status(200).json({
+      status: true,
+      code: 200,
+      message: 'Conversations successfully',
+      data: result,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      status: false,
+      code: 500,
+      message: err?.message || 'Internal server error',
+    });
   }
 };
 
