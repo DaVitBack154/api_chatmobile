@@ -26,24 +26,40 @@ module.exports.saveMessage = async (req, res) => {
 };
 
 module.exports.createUser = async (req, res) => {
-  const { UserID, Name, Role } = req.body;
+  const { UserID, name, surname, idCard, role } = req.body;
 
   if (!UserID || UserID === '')
     return res
       .status(400)
       .json({ status: false, code: 400, message: 'UserID is required' });
 
-  if (!Name || Name === '')
+  if (!name || name === '')
     return res
       .status(400)
       .json({ status: false, code: 400, message: 'Name is required' });
 
-  if (!Role || Role === '')
+  if (!surname || surname === '')
     return res
       .status(400)
       .json({ status: false, code: 400, message: 'Role is required' });
 
-  const user = new UserModel({ _id: UserID, name: Name, role: Role });
+  if (!idCard || idCard === '')
+    return res
+      .status(400)
+      .json({ status: false, code: 400, message: 'Role is required' });
+
+  if (!role || role === '')
+    return res
+      .status(400)
+      .json({ status: false, code: 400, message: 'Role is required' });
+
+  const user = new UserModel({
+    _id: UserID,
+    name: name,
+    surname: surname,
+    idCard: idCard,
+    role: role,
+  });
 
   try {
     const getUser = await UserModel.findOne({

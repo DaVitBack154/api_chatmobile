@@ -10,11 +10,11 @@ const UserSchema = new Schema(
     },
     name: {
       type: String,
-      required: true,
     },
+    surname: String,
+    idCard: String,
     role: {
       type: String,
-      required: true,
     },
     createDate: {
       type: Date,
