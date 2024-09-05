@@ -12,8 +12,7 @@ const path = require('path');
 const moment = require('moment-timezone');
 require('dotenv').config();
 
-const urlHost = '18.140.121.108';
-// const urlHost = 'localhost';
+const urlHost = 'localhost';
 
 const app = express();
 const server = http.createServer(app);
